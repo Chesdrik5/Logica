@@ -1,0 +1,107 @@
+module Graficas where
+
+type Vertice = Int
+
+type Arista = (Vertice, Vertice)
+
+type Adyacencia = (Vertice, [Vertice])
+
+type Grafica = [Adyacencia]
+
+perteneceVertice :: Vertice -> Grafica -> Bool
+perteneceVertice _ [] = False
+perteneceVertice v1 ((v, as): vs) 
+	| v == v1 = True
+	| otherwise = perteneceVertice v1 vs
+
+adyacencias :: Vertice -> Grafica -> [Vertice]
+adyacencias v [] = error "el vertice no pertenece"
+adyacencias v ((v1, vs):as) 
+	| v1 == v = vs
+	| otherwise = adyacencias v as
+
+grado :: Vertice -> Grafica -> Int
+grado v g = length (adyacencias v g)
+
+sumaGrados :: Grafica -> Int
+sumaGrados [] = 0
+sumaGrados ((v, vs):as) = (grado v ((v, vs):as) )+ (sumaGrados as) 
+
+numAristas :: Grafica -> Int
+numAristas g = (sumaGrados g) `div` 2
+
+g1 :: Grafica
+g1 = [(1,[2, 3]), (2,[1, 3]), (3, [1, 2])]
+
+
+numVertices :: Grafica -> Int
+numVertices [] = 0
+numVertices (x:xs) = 1 + (numVertices xs)
+
+--recibe una grafica y dos vertices, determina si son adyacentes
+sonAdyacentes :: Grafica -> Vertice -> Vertice -> Bool
+sonAdyacentes [] _ _ = error "La grafica está vacia"
+sonAdyacentes g v v1 = eleme v1 (adyacencias v g)
+--idea: sonAdyacentes g u v = elem v (adyacencias u)
+
+--recibe una grafica, un camino (lista de vertices) y un vertice.
+--determina si el vertice es adyacente al primer vertice del camino en la grafica,
+--es decir si puede extender el camino
+extiendeCamino :: Grafica -> [Vertice] -> Vertice -> Bool
+--recibe una grafica, una secuencia de vertices y un camino (solucion temporal)
+--determina si el primer vertice de la secuencia forma un camino junto con la sol. temporal.
+--si es asi, construye el camino y continua recursivamente, si no, regresa la sol. temporal
+--Inicialmente se debe invocar con una solucion vacia y con la secuencia original
+esCamino :: Grafica -> [Vertice] -> [Vertice] -> [Vertice]
+--recibe una grafica y una secuecia de vertices, determina si la secuencia es un
+--camino Hamiltoniano
+esCaminoHamiltoniano :: Grafica -> [Vertice] -> Bool
+esCaminoHamiltoniano g s = 
+	if (hayRepetidos s || (length s) != (numVertices g)) 
+	then False
+	else esCamino g s []
+{-
+
+
+vecinoSinVisitar :: Vertice -> Grafica -> [Vertice] -> Vertice
+vecinoSinVisitar i g visitados =
+	if ((sinVisitar (adyacencias i g) visitados) >= 0)
+	then sinVisitar (adyacencias i g) visitados
+	else -1
+
+sinVisitar :: [Vertice] -> [Vertice] -> Vertice
+sinVisitar [] _ = -1
+sinVisitar (x:xs) visitados =
+	if (elem x visitados)
+	then sinVisitar xs visitados
+	else x
+
+-}
+{-- 
+g1 = [[1,1,1], [1,1,1], [1,1,1]]
+ --}
+
+-- conexa :: Grafica -> Bool
+{-
+
+funAux :: (Entrada, ListaAProcesar) -> ResParcial -> Resultado
+funAux (_, []) p = 
+if (funValida e ? p) then p else error "no hay resultado valido"
+
+funAux (e, (x:xs)) p =
+if (funValida e x p) (procesa e x p)
+else funAux (e, procesa2 e x p)
+
+Es decir, la idea es que implementen "bactracking".
+Entonces, deben hacer una funcion auxiliar (algo como funAux) para lograr esto.
+funAux recibe 3 parametros:
+Datos de entrada (junto con una lista a procesar. Para nuestro caso particular esta lista a procesar podrían ser los vertices de la grafica, y los datos de entrada sería como tal la gráfica).
+El resultado parcial es lo que vas construyendo (por ejemplo, para el caso del ciclo hamiltoniano, la idea sería que fueras construyendo un camino y al final verificar si formaste un ciclo hamiltoniano). 
+Lo que devuelves es lo que fuiste construyendo.
+
+en el caso de la funcion funValida, esta se encargaria de verificar que realmente es un ciclo hamiltoniano (creo que esta funcion es en principio un poco mas facil de implementar).
+
+y la funcion de procesa lo que tendria que hacer es justamente construyendo tu resultado parcial.
+
+
+-}
